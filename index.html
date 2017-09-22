@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  <!--  Meta -->
+  <meta charset="UTF-8" />
+  <title>Roost Classification</title>
+  
+  <!--  Styles -->
+  <link rel="stylesheet" href="styles/index.css">
+  
+  <!-- Scripts -->
+  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/16C1825A-9167-E14F-930A-D3C8E5BA4D16/main.js" charset="UTF-8">
+  </script>
+  <script type="text/javascript">
+    var image_names = [];
+    var num_tiles = 8;
+    var num_rows=2;
+
+    //Parse url to read in set no. of image names
+    //Based on the approach selected, can be modified to read in the names of image files into the array image_names.
+    function parse_url(){
+      var ip = gup("input");
+      ip_names = ip.split('|');
+      for(var i=0;i<ip_names.length;i++){
+        var str = ip_names[i].split(':');
+        var option_name = str[0];
+        var option_value = str[1];
+        if(option_name == 'set'){
+          set_no = option_value;
+        }
+      }
+    }
+
+    //Regular exp to read url
+    function gup(name){
+      var regexS = "[\\?&]"+name+"=([^&#]*)";
+      var regex = new RegExp(regexS);
+      var tmpURL = window.location.href;
+      var results = regex.exec(tmpURL);
+      if(results === null){
+        return "";
+      }else{
+        return results[1];
+      }
+    }
+
+    //This should be set based on the set_no provided or from the names provided in the url, depending on the approach selected
+    image_names = ["1","2","3","4","5","6","7","8"];
+
+    //Dynamically display images based on set no
+    function render_page(){
+      console.log(image_names);
+      var num_per_row = Math.ceil(num_tiles/num_rows);
+      var count = 0;
+      document.writeln("<tr><td><table align=\"center\">");
+      for(i=0;i<num_rows;i++){
+        document.writeln("<tr>");
+        for( j=0;j<num_per_row;j++){
+          document.writeln("<td><div class=\"image\"><img src=\"images/"+image_names[count]+".gif\"></div></td>");
+          count++;
+          if(count == image_names.length)
+            break;
+        }
+        document.writeln("</tr>")
+      }
+      document.writeln("</table></td></tr>");
+    }     
+  
+    //Read in selected images
+    function get_results(){
+      var results="";
+      ims = document.getElementsByTagName("img");
+      for(var i=0; i < image_names.length;i++){
+        if (ims[i].className == "clicked") {
+            results = results + im_names[i] + "," + 1 + "|";
+        } else {
+            results = results + im_names[i] + "," + 0 + "|";
+        }
+      }
+      return results;
+    }
+    
+    //Submit which images are selected
+    function sunbmitPage(){
+      var results = get_results();
+      document.getElementById('results').value = results;
+		  document.forms["mturk_form"].submit();
+	}
+  
+  </script>
+</head>
+<body>
+  <h1>Roost Classification</h1>
+  <table align="center">
+    <tr align="center">
+      <td>
+        <h2>Select all images containing prominent and distinct roosts</h2>
+        <h3>Please read <a href="instructions.html" target="_blank">instructions</a> before performing the task</h3>
+      </td>
+    </tr>
+    <script type="text/javascript">render_page();</script>
+    <tr>
+      <td>
+        <form id="mturkPage" method="POST" action="">
+          <div align="center">
+            <input id="submit_button" type="button" name="submit_page" value="Submit" onclick="submitPage()">
+          </div>
+        </form>
+      </td>
+    </tr>
+    
+  </table>
+  <!-- Scripts -->
+  <script src="scripts/index.js"></script>
+  <script>
+    //To check if HIT has been accepted or not
+    $(document).ready( function (){
+        document.getElementById('assignmentId').value = gup('assignmentId');
+        if(gup('assignmentId') == "ASSIGNMENT_ID_NOT_AVAILABLE"){
+            document.getElementById('submit_button').disabled = true;
+            document.getElementById('submit_button').value = "You must ACCEPT the HIT before you can submit the results.";
+        } else{
+            var form = document.getElementById('mturk_form');
+            if(document.refferer && (document.referrer.indexOf('workersandbox') != 1)){
+                form.action = "https://workersandbox.mturk.com/mturk/externalSubmit";
+            }
+        }
+    });
+  </script>
+</body>
+</html>
